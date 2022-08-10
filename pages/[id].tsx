@@ -23,7 +23,7 @@ const Game: React.FC = () => {
   let index: number;
 
   console.log(gameType, noWords);
-  const ref = useRef(null);
+  const ref = useRef<any>(null);
   const handleKeyDown = ({ keyCode, key }: any) => {
     if (keyCode === 32) {
       checkMatch();
