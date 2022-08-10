@@ -10,7 +10,7 @@ type GameProps = {};
 const Game: React.FC<GameProps> = () => {
   let sec = 60;
   const [noWords, setNowords] = useState(0);
-  const [words, setWords] = useState([]);
+  const [words, setWords] = useState<any[]>([]);
   const [second, setSecond] = useState(sec);
   const [curInput, setcurInput] = useState("");
   const [curWordIdx, setCurIdx] = useState<number>(0);
