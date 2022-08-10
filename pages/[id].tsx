@@ -5,9 +5,8 @@ import { clearInterval } from "timers";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { games } from "../data";
 import Result from "../components/Result";
-type GameProps = {};
 
-const Game: React.FC<GameProps> = () => {
+const Game: React.FC = () => {
   let sec = 60;
   const [noWords, setNowords] = useState(0);
   const [words, setWords] = useState<any[]>([]);
@@ -18,8 +17,6 @@ const Game: React.FC<GameProps> = () => {
   const [curChar, setCurChar] = useState("");
   const [correct, setCorrect] = useState(0);
   const [incorrect, setInCorrect] = useState(0);
-  const [wpm, setWpm] = useState(0);
-  const [started, setStarted] = useState<boolean>(false);
 
   const router = useRouter();
   const gameType = router.query;
@@ -72,7 +69,7 @@ const Game: React.FC<GameProps> = () => {
   useEffect(() => {
     if (second > 0 && (curCharIdx !== -1 || curWordIdx !== 0)) {
       console.log(curInput);
-      setStarted(true);
+
       second > 0 && setTimeout(() => setSecond(second - 1), 1000);
 
       return;
@@ -92,7 +89,7 @@ const Game: React.FC<GameProps> = () => {
     });
   }, [gameType]);
   useEffect(() => {
-    const allWords = new Array(noWords).fill(null).map(() => randomWords());
+    const allWords = randomWords(noWords);
     setWords(allWords as any);
   }, [noWords]);
   return (
@@ -124,9 +121,9 @@ const Game: React.FC<GameProps> = () => {
               }
             />
           ) : (
-            <div className="w-24  mx-1 p-2 text-3xl bg-slate-500 text-blue-50 rounded-lg">
+            <div className="w-32 h-32 flex justify-center items-center rounded-full  mx-1 p-2 text-3xl bg-slate-500 text-blue-50">
               <div
-                className="font-mono font-bold leading-none"
+                className="font-mono text-6xl font-bold leading-none"
                 x-text="seconds"
               >
                 {second}
@@ -146,8 +143,8 @@ const Game: React.FC<GameProps> = () => {
         />
 
         <div
-          onClick={() => ref.current.focus()}
-          className=" bg-slate-500  border-cyan-100 shadow-2xl shadow-teal-900 overflow-scroll text-justify p-3  rounded-md max-w-3xl max-w-8xl "
+          onClick={() => ref.current?.focus()}
+          className=" bg-slate-500 mb-6  border-cyan-100 shadow-2xl shadow-teal-900 overflow-scroll text-justify p-3  rounded-md max-w-3xl max-w-8xl "
         >
           <p className="">
             {words.map((word: string, index) => (
