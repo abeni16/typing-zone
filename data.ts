@@ -2,7 +2,7 @@ export const games = [
   {
     id: 1,
     name: "begginer",
-    avgScore: 45,
+    avgScore: 35,
   },
   {
     id: 2,
@@ -12,6 +12,6 @@ export const games = [
   {
     id: 3,
     name: "impossible",
-    avgScore: 100,
+    avgScore: 90,
   },
 ];

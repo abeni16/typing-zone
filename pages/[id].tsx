@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from "react";
 import randomWords from "random-words";
 import { clearInterval } from "timers";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { games } from "../data";
+import Result from "../components/Result";
 type GameProps = {};
 
 const Game: React.FC<GameProps> = () => {
   let sec = 60;
-  let value = 99;
+  const [noWords, setNowords] = useState(0);
   const [words, setWords] = useState([]);
   const [second, setSecond] = useState(sec);
   const [curInput, setcurInput] = useState("");
@@ -18,9 +20,13 @@ const Game: React.FC<GameProps> = () => {
   const [incorrect, setInCorrect] = useState(0);
   const [wpm, setWpm] = useState(0);
   const [started, setStarted] = useState<boolean>(false);
-  const index = 90;
-  const ref = useRef(null);
 
+  const router = useRouter();
+  const gameType = router.query;
+  let index: number;
+
+  console.log(gameType, noWords);
+  const ref = useRef(null);
   const handleKeyDown = ({ keyCode, key }: any) => {
     if (keyCode === 32) {
       checkMatch();
@@ -53,8 +59,6 @@ const Game: React.FC<GameProps> = () => {
       } else {
         return "bg-red-500 animate-pulse";
       }
-    } else if (wordIdx === curWordIdx) {
-      return "bg-gray-500 ";
     } else if (
       wordIdx === curWordIdx &&
       curCharIdx >= words[curWordIdx].length
@@ -73,7 +77,6 @@ const Game: React.FC<GameProps> = () => {
 
       return;
     } else if (second === 0) {
-      setSecond(sec);
     } else {
       console.log("inside else", curInput);
       second > 0 && setTimeout(() => setSecond(second), 1000);
@@ -82,67 +85,88 @@ const Game: React.FC<GameProps> = () => {
   }, [second, curCharIdx, curWordIdx]);
 
   useEffect(() => {
-    const allWords = new Array(index).fill(null).map(() => randomWords());
+    games.map((item) => {
+      if (item.name === gameType.id) {
+        setNowords(item.avgScore);
+      }
+    });
+  }, [gameType]);
+  useEffect(() => {
+    const allWords = new Array(noWords).fill(null).map(() => randomWords());
     setWords(allWords as any);
-  }, []);
+  }, [noWords]);
   return (
-    <div className="flex   bg-slate-900  justify-between text-center items-center flex-col h-auto  p-2">
-      <h1 className=" text-4xl uppercase items-center  text-rose-100 my-10">
-        <span className=" bg-gradient-to-l from-slate-100 to-slate-200 font-bold text-slate-900 pl-3 pr-3 mr-2 border-2 border-blue-200 rounded-md text-center text-4xl">
-          T
-        </span>
-        yping
-        <span className="  bg-gradient-to-l from-slate-100 to-slate-200  font-bold text-slate-900 ml-3 pl-3 pr-3 mr-2 border-2 border-blue-200 rounded-md text-center text-4xl">
-          z
-        </span>
-        one
-      </h1>
-      <div className="flex">
-        <div className="w-24 mx-1 p-2 text-3xl bg-slate-500 text-blue-50 rounded-lg">
-          <div className="font-mono font-bold leading-none" x-text="seconds">
-            {second}
-          </div>
-        </div>
-        <div className="w-24 mx-1 p-2 text-3xl bg-slate-500 text-blue-50 rounded-lg">
-          <div className="font-mono font-bold leading-none" x-text="seconds">
-            {correct + incorrect}wpm
-          </div>
-        </div>
-        <div className="w-24 mx-1 p-2 text-3xl bg-slate-500 text-blue-50 rounded-lg">
-          <div className="font-mono font-bold leading-none" x-text="seconds">
-            {Math.floor((correct / (correct + incorrect)) * 100)}%
-          </div>
-        </div>
-      </div>
-
-      <input
-        type="text"
-        onBlur={({ target }) => target.focus()}
-        onKeyDown={handleKeyDown}
-        value={curInput}
-        className=" opacity-0 cursor-default"
-        onChange={(event) => setcurInput(event.target.value)}
-        ref={ref}
-      />
-
+    <div className="flex   bg-slate-900  justify-between text-center items-center flex-col h-auto ">
       <div
-        onClick={() => ref.current.focus()}
-        className=" bg-slate-500 overflow-scroll text-justify p-3  rounded-md max-w-3xl max-w-8xl "
+        style={{ background: "url('wave.svg')", backgroundSize: "cover" }}
+        className="flex justify-between text-center w-full items-center flex-col h-screen "
       >
-        <p className="">
-          {words.map((word: string, index) => (
-            <>
-              <span className={" font-mono text-2xl text-white"} key={index}>
-                {word.split("").map((char, id) => (
-                  <span className={getCharClass(index, id, char)} key={id}>
-                    {char}
-                  </span>
-                ))}
-              </span>
-              <span> </span>
-            </>
-          ))}
-        </p>
+        <h1 className=" text-4xl uppercase items-center  text-rose-100 my-10">
+          <span className=" bg-gradient-to-l from-slate-100 to-slate-200 font-bold text-slate-900 pl-3 pr-3 mr-2 border-2 border-blue-200 rounded-md text-center text-4xl">
+            T
+          </span>
+          yping
+          <span className="  bg-gradient-to-l from-slate-100 to-slate-200  font-bold text-slate-900 ml-3 pl-3 pr-3 mr-2 border-2 border-blue-200 rounded-md text-center text-4xl">
+            z
+          </span>
+          one
+        </h1>
+        <div className="flex ">
+          {second === 0 || curWordIdx === noWords ? (
+            <Result
+              gameType={gameType.id}
+              wpm={correct + incorrect}
+              avgScore={noWords}
+              accuracy={
+                correct === 0 && incorrect === 0
+                  ? 0
+                  : Math.floor((correct / (correct + incorrect)) * 100)
+              }
+            />
+          ) : (
+            <div className="w-24  mx-1 p-2 text-3xl bg-slate-500 text-blue-50 rounded-lg">
+              <div
+                className="font-mono font-bold leading-none"
+                x-text="seconds"
+              >
+                {second}
+              </div>
+            </div>
+          )}
+        </div>
+        <input
+          type="text"
+          disabled={second === 0 || curWordIdx === noWords}
+          onBlur={({ target }) => target.focus()}
+          onKeyDown={handleKeyDown}
+          value={curInput}
+          className=" opacity-0 cursor-default"
+          onChange={(event) => setcurInput(event.target.value)}
+          ref={ref}
+        />
+
+        <div
+          onClick={() => ref.current.focus()}
+          className=" bg-slate-500  border-cyan-100 shadow-2xl shadow-teal-900 overflow-scroll text-justify p-3  rounded-md max-w-3xl max-w-8xl "
+        >
+          <p className="">
+            {words.map((word: string, index) => (
+              <>
+                <span
+                  className={" font-mono font-thin text-2xl text-white"}
+                  key={index}
+                >
+                  {word.split("").map((char, id) => (
+                    <span className={getCharClass(index, id, char)} key={id}>
+                      {char}
+                    </span>
+                  ))}
+                </span>
+                <span> </span>
+              </>
+            ))}
+          </p>
+        </div>
       </div>
     </div>
   );
