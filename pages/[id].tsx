@@ -61,7 +61,7 @@ const Game: React.FC<GameProps> = () => {
       }
     } else if (
       wordIdx === curWordIdx &&
-      curCharIdx >= words[curWordIdx].length
+      curCharIdx >= words[curWordIdx]?.length
     ) {
       return "bg-red-500 animate-pulse";
     } else {
