@@ -28,8 +28,8 @@ const Game: React.FC = () => {
     if (keyCode === 32) {
       checkMatch();
       setcurInput("");
-      setCurIdx(curWordIdx + 1);
       setCurCharIndex(-1);
+      setCurIdx(curWordIdx + 1);
     } else if (keyCode === 8) {
       setCurCharIndex(curCharIdx - 1);
       setCurChar("");
@@ -42,6 +42,7 @@ const Game: React.FC = () => {
   const checkMatch = () => {
     const wordToCompare = words[curWordIdx];
     const doesItMatched = wordToCompare === curInput.trim();
+
     if (doesItMatched) {
       setCorrect(correct + 1);
     } else {
@@ -67,27 +68,41 @@ const Game: React.FC = () => {
   };
 
   useEffect(() => {
-    if (second > 0 && (curCharIdx !== -1 || curWordIdx !== 0)) {
-      console.log(curInput);
+    let isCancelled = false;
 
-      second > 0 && setTimeout(() => setSecond(second - 1), 1000);
+    if (!isCancelled) {
+      if (second > 0 && (curCharIdx !== -1 || curWordIdx !== 0)) {
+        console.log(curInput);
 
-      return;
-    } else if (second === 0) {
-    } else {
-      console.log("inside else", curInput);
-      second > 0 && setTimeout(() => setSecond(second), 1000);
-      return;
+        second > 0 && setTimeout(() => setSecond(second - 1), 1000);
+
+        return;
+      } else if (second === 0) {
+      } else {
+        console.log("inside else", curInput);
+        second > 0 && setTimeout(() => setSecond(second), 1000);
+        return;
+      }
     }
+
+    return () => {
+      isCancelled = true;
+    };
   }, [second, curCharIdx, curWordIdx]);
 
   useEffect(() => {
-    games.map((item) => {
-      if (item.name === gameType.id) {
-        setNowords(item.avgScore);
-      }
-    });
-  }, [gameType]);
+    let isCancelled = false;
+    if (!isCancelled) {
+      games.map((item) => {
+        if (item.name === gameType.id) {
+          setNowords(item.avgScore);
+        }
+      });
+    }
+    return () => {
+      isCancelled = true;
+    };
+  }, [gameType, noWords]);
   useEffect(() => {
     const allWords = randomWords(noWords);
     setWords(allWords as any);
